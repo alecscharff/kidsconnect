@@ -20,7 +20,7 @@ export const COLOR_CLASSES = {
 /**
  * Parse the CSV file and return structured puzzle data
  */
-export async function loadPuzzleData(csvPath = '/puzzle_data.csv') {
+export async function loadPuzzleData(csvPath = `${import.meta.env.BASE_URL}puzzle_data.csv`) {
   return new Promise((resolve, reject) => {
     Papa.parse(csvPath, {
       download: true,
