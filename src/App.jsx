@@ -18,13 +18,18 @@ function App() {
     toast,
     isLoading,
     error,
+    showModal,
     selectTile,
     deselectAll,
     shuffle,
     submitGuess,
     resetGame,
     dismissToast,
+    dismissModal,
+    openModal,
   } = useGameState()
+
+  const gameOver = gameStatus === 'won' || gameStatus === 'lost'
 
   if (isLoading) {
     return (
@@ -90,14 +95,31 @@ function App() {
         />
 
         {/* Game Controls */}
-        <GameControls
-          onShuffle={shuffle}
-          onDeselectAll={deselectAll}
-          onSubmit={submitGuess}
-          canSubmit={selectedTiles.length === 4}
-          canDeselect={selectedTiles.length > 0}
-          gameStatus={gameStatus}
-        />
+        {!gameOver ? (
+          <GameControls
+            onShuffle={shuffle}
+            onDeselectAll={deselectAll}
+            onSubmit={submitGuess}
+            canSubmit={selectedTiles.length === 4}
+            canDeselect={selectedTiles.length > 0}
+            gameStatus={gameStatus}
+          />
+        ) : !showModal && (
+          <div className="w-full mt-4 flex justify-center gap-3">
+            <button
+              onClick={openModal}
+              className="px-6 py-3 rounded-full bg-gray-800 text-white font-display font-bold hover:bg-gray-700 transition-colors"
+            >
+              Show Results
+            </button>
+            <button
+              onClick={resetGame}
+              className="px-6 py-3 rounded-full bg-white text-gray-800 font-display font-bold border-2 border-gray-300 hover:bg-gray-50 transition-colors"
+            >
+              Play Again
+            </button>
+          </div>
+        )}
       </main>
 
       {/* Toast Notification */}
@@ -107,10 +129,11 @@ function App() {
 
       {/* Game Over Modal */}
       <AnimatePresence>
-        {(gameStatus === 'won' || gameStatus === 'lost') && (
+        {showModal && (
           <GameOverModal
             status={gameStatus}
             onPlayAgain={resetGame}
+            onDismiss={dismissModal}
             solvedCategories={solvedCategories}
           />
         )}

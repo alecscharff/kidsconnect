@@ -20,6 +20,7 @@ export function useGameState() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [previousGuesses, setPreviousGuesses] = useState([])
+  const [showModal, setShowModal] = useState(false)
 
   // Load puzzle data on mount
   useEffect(() => {
@@ -47,6 +48,7 @@ export function useGameState() {
       setSolvedCategories([])
       setMistakes(0)
       setPreviousGuesses([])
+      setShowModal(false)
       setGameStatus('playing')
       setIsLoading(false)
       setError(null)
@@ -126,15 +128,16 @@ export function useGameState() {
       // Remove solved tiles from the board
       setTiles((prev) => prev.filter((t) => !selectedTiles.includes(t.id)))
 
-      // Add to solved categories
+      // Add to solved categories (in order of completion)
       setSolvedCategories((prev) => {
-        const newSolved = [...prev, solvedCategory].sort(
-          (a, b) => a.difficulty - b.difficulty
-        )
+        const newSolved = [...prev, solvedCategory]
 
         // Check for win
         if (newSolved.length === 4) {
-          setTimeout(() => setGameStatus('won'), 500)
+          setTimeout(() => {
+            setGameStatus('won')
+            setShowModal(true)
+          }, 500)
         }
 
         return newSolved
@@ -157,18 +160,16 @@ export function useGameState() {
 
       // Check for loss
       if (newMistakes >= MAX_MISTAKES) {
-        // Reveal all remaining categories
-        const remainingCategories = gameCategories.filter(
-          (c) => !solvedCategories.find((s) => s.name === c.name)
-        )
-        setSolvedCategories((prev) => {
-          const allCategories = [...prev, ...remainingCategories].sort(
-            (a, b) => a.difficulty - b.difficulty
-          )
-          return allCategories
-        })
+        // Reveal all remaining categories (append in difficulty order for reveal)
+        const remainingCategories = gameCategories
+          .filter((c) => !solvedCategories.find((s) => s.name === c.name))
+          .sort((a, b) => a.difficulty - b.difficulty)
+        setSolvedCategories((prev) => [...prev, ...remainingCategories])
         setTiles([])
-        setTimeout(() => setGameStatus('lost'), 500)
+        setTimeout(() => {
+          setGameStatus('lost')
+          setShowModal(true)
+        }, 500)
       }
     }
   }, [selectedTiles, tiles, gameCategories, solvedCategories, mistakes, gameStatus, previousGuesses])
@@ -176,6 +177,16 @@ export function useGameState() {
   // Dismiss toast
   const dismissToast = useCallback(() => {
     setToast(null)
+  }, [])
+
+  // Dismiss modal (to view completed board)
+  const dismissModal = useCallback(() => {
+    setShowModal(false)
+  }, [])
+
+  // Show modal again
+  const openModal = useCallback(() => {
+    setShowModal(true)
   }, [])
 
   // Auto-dismiss toast after 2 seconds
@@ -197,11 +208,14 @@ export function useGameState() {
     toast,
     isLoading,
     error,
+    showModal,
     selectTile,
     deselectAll,
     shuffle,
     submitGuess,
     resetGame,
     dismissToast,
+    dismissModal,
+    openModal,
   }
 }

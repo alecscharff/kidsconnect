@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-function GameOverModal({ status, onPlayAgain, solvedCategories }) {
+function GameOverModal({ status, onPlayAgain, onDismiss, solvedCategories }) {
   const isWin = status === 'won'
 
   return (
@@ -9,7 +9,7 @@ function GameOverModal({ status, onPlayAgain, solvedCategories }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onClick={onPlayAgain}
+      onClick={onDismiss}
     >
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
@@ -54,20 +54,36 @@ function GameOverModal({ status, onPlayAgain, solvedCategories }) {
           ))}
         </div>
 
-        {/* Play Again Button */}
-        <motion.button
-          onClick={onPlayAgain}
-          whileTap={{ scale: 0.95 }}
-          className="
-            w-full py-3 rounded-full
-            bg-gray-800 text-white
-            font-display font-bold text-base sm:text-lg
-            hover:bg-gray-700 active:bg-gray-900
-            transition-colors
-          "
-        >
-          Play Again
-        </motion.button>
+        {/* Buttons */}
+        <div className="space-y-3">
+          <motion.button
+            onClick={onPlayAgain}
+            whileTap={{ scale: 0.95 }}
+            className="
+              w-full py-3 rounded-full
+              bg-gray-800 text-white
+              font-display font-bold text-base sm:text-lg
+              hover:bg-gray-700 active:bg-gray-900
+              transition-colors
+            "
+          >
+            Play Again
+          </motion.button>
+          <motion.button
+            onClick={onDismiss}
+            whileTap={{ scale: 0.95 }}
+            className="
+              w-full py-3 rounded-full
+              bg-white text-gray-800
+              font-display font-bold text-base sm:text-lg
+              border-2 border-gray-300
+              hover:bg-gray-50 active:bg-gray-100
+              transition-colors
+            "
+          >
+            View Board
+          </motion.button>
+        </div>
       </motion.div>
     </motion.div>
   )
